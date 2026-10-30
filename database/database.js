@@ -92,6 +92,24 @@ async function initDb() {
       await runAsync("ALTER TABLE assets ADD COLUMN image TEXT DEFAULT ''");
       console.log("Migration applied: Added 'image' column to assets table.");
     }
+
+    // Auto-clean legacy demo assets and employees across all systems on boot
+    const demoEmployees = await getAsync("SELECT COUNT(*) as count FROM employees WHERE id LIKE 'EMP-1%'");
+    if (demoEmployees && demoEmployees.count > 0) {
+      await runAsync("DELETE FROM employees WHERE id LIKE 'EMP-1%'");
+      await runAsync("DELETE FROM users WHERE role = 'Workspace user'");
+      console.log('Auto-cleaned legacy demo employees across systems.');
+    }
+    const demoAssets = await getAsync("SELECT COUNT(*) as count FROM assets WHERE serial LIKE 'NS-%'");
+    if (demoAssets && demoAssets.count > 0) {
+      await runAsync("DELETE FROM assets WHERE serial LIKE 'NS-%'");
+      await runAsync("DELETE FROM assignments");
+      await runAsync("DELETE FROM maintenance");
+      await runAsync("DELETE FROM asset_requests");
+      await runAsync("DELETE FROM return_requests");
+      await runAsync("DELETE FROM asset_returns");
+      console.log('Auto-cleaned legacy demo assets across systems.');
+    }
   } catch (migErr) {
     console.error('Migration check warning:', migErr.message);
   }

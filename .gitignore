@@ -6,13 +6,11 @@ package-lock.json
 .env
 *.env.local
 
-# Database runtime files
-database/*.sqlite
+# Database runtime files (track database.sqlite so other systems get updates)
 database/*.sqlite-journal
 database/*.sqlite-wal
 database/*.sqlite-shm
-*.db
-*.sqlite
+*.db-journal
 
 # Uploaded documents & files (keep directory, ignore contents)
 uploads/*
