@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+*.env.local
+
+# Database runtime files
+database/*.sqlite
+database/*.sqlite-journal
+database/*.sqlite-wal
+database/*.sqlite-shm
+*.db
+*.sqlite
+
+# Uploaded documents & files (keep directory, ignore contents)
+uploads/*
+!uploads/.gitkeep
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.system_generated/
+tmp/
+temp/
+
+# OS specific files
+.DS_Store
+Thumbs.db
