@@ -70,36 +70,7 @@ async function seedDatabase(force = false) {
     await runAsync('DELETE FROM users');
   }
 
-  // 1. Settings
-  const defaultOrg = 'ZylloTech Asset Management';
-  const defaultPrefix = 'AST';
-  const defaultCurrency = 'INR';
-
-  await runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', ['org', defaultOrg]);
-  await runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', ['prefix', defaultPrefix]);
-  await runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', ['currency', defaultCurrency]);
-
-  // 2. Companies
-  const companies = [
-    { id: 'C1', name: 'C1', logo: '' },
-    { id: 'C2', name: 'C2', logo: '' },
-    { id: 'C3', name: 'C3', logo: '' }
-  ];
-  for (const c of companies) {
-    await runAsync('INSERT OR REPLACE INTO companies (id, name, logo) VALUES (?, ?, ?)', [c.id, c.name, c.logo]);
-  }
-
-  // 3. Departments
-  for (const d of DEPTS) {
-    await runAsync('INSERT OR IGNORE INTO departments (name) VALUES (?)', [d]);
-  }
-
-  // 4. Categories
-  for (const cat of CATS) {
-    await runAsync('INSERT OR IGNORE INTO categories (name, group_name) VALUES (?, ?)', [cat, 'Computing']);
-  }
-
-  // 5. Users
+  // Only ensure Administrator account exists
   const adminEmail = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@assetflow.workspace').toLowerCase();
   const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'assetflow123';
   const adminName = process.env.DEFAULT_ADMIN_NAME || 'Alex Morgan';
@@ -110,8 +81,7 @@ async function seedDatabase(force = false) {
     [adminName, adminEmail, hashedAdminPassword, 'Administrator']
   );
 
-  console.log('Seeding completed: Core configuration, lookup tables, and Admin account created.');
-  console.log('Employees and Assets tables are left clean for real data.');
+  console.log('Seeding completed: Only Administrator account exists in database.');
 }
 
 if (require.main === module) {
