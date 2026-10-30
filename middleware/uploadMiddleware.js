@@ -3,12 +3,8 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || './uploads');
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.resolve(process.cwd(), process.env.UPLOAD_DIR || './uploads');
+try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (err) { console.error(err.message); }
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
