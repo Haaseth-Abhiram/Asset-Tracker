@@ -180,21 +180,21 @@ router.post(
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
-          name.trim(),
-          category.trim(),
-          brand.trim(),
-          model.trim(),
+          (name || id).trim(),
+          (category || 'Laptop').trim(),
+          (brand || '').trim(),
+          (model || '').trim(),
           serial,
-          purchaseDate,
+          purchaseDate || null,
           Number(price) || 0,
-          vendor.trim(),
-          warranty,
-          location.trim(),
-          condition,
-          status,
-          organization,
+          (vendor || '').trim(),
+          warranty || null,
+          (location || '').trim(),
+          condition || 'Good',
+          status || 'Available',
+          organization || 'C1',
           image || '',
-          stockNote,
+          stockNote || '',
           employeeId || null,
           employeeName || null
         ]
@@ -241,9 +241,33 @@ router.put(
 
     try {
       const { id } = req.params;
-      const existing = await getAsync('SELECT * FROM assets WHERE id = ?', [id]);
+      let existing = await getAsync('SELECT * FROM assets WHERE id = ?', [id]);
       if (!existing) {
-        return res.status(404).json({ success: false, error: 'Asset not found.' });
+        await runAsync(
+          `INSERT INTO assets (id, name, category, brand, model, serial, purchase_date, price, vendor, warranty, location, condition, status, organization, image, stock_note, employee_id, employee_name)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            id,
+            (req.body.name || id).trim(),
+            (req.body.category || 'Laptop').trim(),
+            (req.body.brand || '').trim(),
+            (req.body.model || '').trim(),
+            (req.body.serial || id).trim().toUpperCase(),
+            req.body.purchaseDate || null,
+            Number(req.body.price) || 0,
+            (req.body.vendor || '').trim(),
+            req.body.warranty || null,
+            (req.body.location || '').trim(),
+            req.body.condition || 'Good',
+            req.body.status || 'Available',
+            req.body.organization || 'C1',
+            req.body.image || '',
+            req.body.stockNote || '',
+            req.body.employeeId || null,
+            req.body.employeeName || null
+          ]
+        );
+        existing = await getAsync('SELECT * FROM assets WHERE id = ?', [id]);
       }
 
       let {
@@ -289,24 +313,24 @@ router.put(
           organization = ?, employee_id = ?, employee_name = ?, image = ?, stock_note = ?, retirement_reason = ? 
          WHERE id = ?`,
         [
-          name.trim(),
-          category,
-          brand.trim(),
-          model.trim(),
+          (name || existing.name || id).trim(),
+          category || existing.category || 'Laptop',
+          (brand || existing.brand || '').trim(),
+          (model || existing.model || '').trim(),
           normalizedSerial,
-          purchaseDate,
-          Number(price) || 0,
-          vendor.trim(),
-          warranty,
-          location.trim(),
-          condition,
-          status,
-          organization,
+          purchaseDate || existing.purchase_date || null,
+          Number(price !== undefined ? price : existing.price) || 0,
+          (vendor || existing.vendor || '').trim(),
+          warranty || existing.warranty || null,
+          (location || existing.location || '').trim(),
+          condition || existing.condition || 'Good',
+          status || existing.status || 'Available',
+          organization || existing.organization || 'C1',
           employeeId || null,
           employeeName || null,
-          image || '',
-          stockNote,
-          retirementReason,
+          image || existing.image || '',
+          stockNote || existing.stock_note || '',
+          retirementReason || existing.retirement_reason || '',
           id
         ]
       );
