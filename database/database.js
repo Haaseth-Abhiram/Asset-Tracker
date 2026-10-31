@@ -3,9 +3,24 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const dbPath = path.resolve(process.cwd(), process.env.DATABASE_PATH || './database/database.sqlite');
-const dbDir = path.dirname(dbPath);
+let dbPath;
+if (process.env.VERCEL) {
+  const tmpDbPath = '/tmp/database.sqlite';
+  const repoDbPath = path.resolve(process.cwd(), 'database/database.sqlite');
+  if (!fs.existsSync(tmpDbPath) && fs.existsSync(repoDbPath)) {
+    try {
+      fs.copyFileSync(repoDbPath, tmpDbPath);
+      console.log('Copied database to writable /tmp for Vercel.');
+    } catch (e) {
+      console.error('Failed to copy database to /tmp:', e.message);
+    }
+  }
+  dbPath = tmpDbPath;
+} else {
+  dbPath = path.resolve(process.cwd(), process.env.DATABASE_PATH || './database/database.sqlite');
+}
 
+const dbDir = path.dirname(dbPath);
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }

@@ -77,10 +77,15 @@ router.get('/file/:filename', optionalAuth, (req, res) => {
     const { filename } = req.params;
     // Prevent directory traversal
     const safeFilename = path.basename(filename);
-    const filePath = path.join(uploadDir, safeFilename);
+    let filePath = path.join(uploadDir, safeFilename);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ success: false, error: 'File not found.' });
+      const repoUploadPath = path.resolve(process.cwd(), 'uploads', safeFilename);
+      if (fs.existsSync(repoUploadPath)) {
+        filePath = repoUploadPath;
+      } else {
+        return res.status(404).json({ success: false, error: 'File not found.' });
+      }
     }
 
     return res.sendFile(filePath);

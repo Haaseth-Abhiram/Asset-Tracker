@@ -52,6 +52,34 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Lazy Database Initialization (essential for Vercel Serverless & local dev)
+let isDbReady = false;
+let dbInitPromise = null;
+
+async function ensureDbReady() {
+  if (isDbReady) return;
+  if (!dbInitPromise) {
+    dbInitPromise = (async () => {
+      await initDb();
+      await seedDatabase(false);
+      isDbReady = true;
+    })();
+  }
+  return dbInitPromise;
+}
+
+// Ensure database is initialized before any API request
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    try {
+      await ensureDbReady();
+    } catch (err) {
+      console.error('Serverless DB initialization warning:', err.message);
+    }
+  }
+  next();
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -111,8 +139,7 @@ let activeServer = null;
 // Initialize and start server
 async function startServer(port = PORT) {
   try {
-    await initDb();
-    await seedDatabase(false);
+    await ensureDbReady();
 
     return new Promise((resolve, reject) => {
       activeServer = app.listen(port, () => {
