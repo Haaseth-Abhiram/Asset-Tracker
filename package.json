@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "build": "node -e \"const fs = require('fs'); if (!fs.existsSync('public')) fs.mkdirSync('public'); ['index.html','styles.css','app.js','zyllotech-logo.png','zyllotech-full-logo.png'].forEach(f => { if (fs.existsSync(f)) fs.copyFileSync(f, 'public/' + f); }); console.log('Static assets synced to public.');\"",
     "setup-db": "node database/database.js --setup",
     "seed": "node database/seed.js",
     "test": "node tests/test.js"

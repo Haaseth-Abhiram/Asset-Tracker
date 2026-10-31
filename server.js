@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
@@ -108,11 +109,16 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/data', dataRoutes);
 
-// Serve static frontend files from workspace root
+// Serve static frontend files from public and workspace root
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
 // Serve index.html for root path
 app.get('/', (req, res) => {
+  const publicIndex = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(publicIndex)) {
+    return res.sendFile(publicIndex);
+  }
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
