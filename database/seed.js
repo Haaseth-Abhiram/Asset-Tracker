@@ -70,7 +70,17 @@ async function seedDatabase(force = false) {
     await runAsync('DELETE FROM users');
   }
 
-  // Only ensure Administrator account exists
+  // 1. Companies (C1, C2, C3)
+  const companies = [
+    { id: 'C1', name: 'C1', logo: '' },
+    { id: 'C2', name: 'C2', logo: '' },
+    { id: 'C3', name: 'C3', logo: '' }
+  ];
+  for (const c of companies) {
+    await runAsync('INSERT OR IGNORE INTO companies (id, name, logo) VALUES (?, ?, ?)', [c.id, c.name, c.logo]);
+  }
+
+  // 2. Only ensure Administrator account exists
   const adminEmail = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@assetflow.workspace').toLowerCase();
   const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'assetflow123';
   const adminName = process.env.DEFAULT_ADMIN_NAME || 'Alex Morgan';
@@ -81,7 +91,7 @@ async function seedDatabase(force = false) {
     [adminName, adminEmail, hashedAdminPassword, 'Administrator']
   );
 
-  console.log('Seeding completed: Only Administrator account exists in database.');
+  console.log('Seeding completed: 3 companies (C1, C2, C3) and Administrator account configured.');
 }
 
 if (require.main === module) {

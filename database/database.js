@@ -110,6 +110,13 @@ async function initDb() {
       await runAsync("DELETE FROM asset_returns");
       console.log('Auto-cleaned legacy demo assets across systems.');
     }
+
+    // Ensure default 3 companies (C1, C2, C3) exist for Company Inventory Overview
+    const companyCount = await getAsync("SELECT COUNT(*) as count FROM companies");
+    if (!companyCount || companyCount.count === 0) {
+      await runAsync("INSERT OR IGNORE INTO companies (id, name, logo) VALUES ('C1', 'C1', ''), ('C2', 'C2', ''), ('C3', 'C3', '')");
+      console.log('Initialized 3 companies: C1, C2, C3.');
+    }
   } catch (migErr) {
     console.error('Migration check warning:', migErr.message);
   }
