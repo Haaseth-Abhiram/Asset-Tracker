@@ -182,28 +182,56 @@ router.put(
 
     try {
       const { id } = req.params;
-      const existing = await getAsync('SELECT * FROM employees WHERE id = ?', [id]);
-      if (!existing) {
-        return res.status(404).json({ success: false, error: 'Employee not found.' });
-      }
+      let existing = await getAsync('SELECT * FROM employees WHERE id = ?', [id]);
 
       const {
-        name = existing.name,
-        organization = existing.organization,
-        email = existing.email,
-        phone = existing.phone,
-        department = existing.department,
-        designation = existing.designation,
-        joined = existing.joined,
-        status = existing.status,
-        location = existing.location
+        name,
+        organization,
+        email,
+        phone,
+        department,
+        designation,
+        joined,
+        status,
+        location
       } = req.body;
 
-      const normalizedEmail = email.toLowerCase().trim();
+      if (!existing) {
+        // If employee doesn't exist yet in SQLite (e.g. from local frontend seed), insert first so update succeeds
+        const cleanName = (name || id).trim();
+        const cleanEmail = (email || `${id.toLowerCase()}@gmail.com`).toLowerCase().trim();
+        await runAsync(
+          `INSERT INTO employees (id, organization, name, email, phone, department, designation, joined, status, location)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            id,
+            organization || 'C1',
+            cleanName,
+            cleanEmail,
+            (phone || '').trim(),
+            department || 'Development',
+            (designation || 'Staff').trim(),
+            joined || new Date().toISOString().slice(0, 10),
+            status || 'Active',
+            location || 'Hyderabad'
+          ]
+        );
+        existing = await getAsync('SELECT * FROM employees WHERE id = ?', [id]);
+      }
+
+      const finalName = (name !== undefined ? name : existing.name).trim();
+      const finalOrg = organization !== undefined ? organization : existing.organization;
+      const finalEmail = (email !== undefined ? email : existing.email).toLowerCase().trim();
+      const finalPhone = (phone !== undefined ? phone : (existing.phone || '')).trim();
+      const finalDept = department !== undefined ? department : existing.department;
+      const finalDesignation = (designation !== undefined ? designation : existing.designation).trim();
+      const finalJoined = joined !== undefined ? joined : existing.joined;
+      const finalStatus = status !== undefined ? status : existing.status;
+      const finalLocation = location !== undefined ? location : existing.location;
 
       // Check unique email if changed
-      if (normalizedEmail !== existing.email.toLowerCase()) {
-        const duplicate = await getAsync('SELECT id FROM employees WHERE email = ? AND id != ?', [normalizedEmail, id]);
+      if (finalEmail !== existing.email.toLowerCase()) {
+        const duplicate = await getAsync('SELECT id FROM employees WHERE email = ? AND id != ?', [finalEmail, id]);
         if (duplicate) {
           return res.status(409).json({ success: false, error: 'Another employee already uses this email.' });
         }
@@ -215,17 +243,23 @@ router.put(
             organization = ?, name = ?, email = ?, phone = ?, department = ?, 
             designation = ?, joined = ?, status = ?, location = ? 
            WHERE id = ?`,
-          [organization, name.trim(), normalizedEmail, phone.trim(), department, designation.trim(), joined, status, location, id]
+          [finalOrg, finalName, finalEmail, finalPhone, finalDept, finalDesignation, finalJoined, finalStatus, finalLocation, id]
         );
 
         // Update assigned assets & assignments cache
-        await runAsync('UPDATE assets SET employee_name = ?, organization = ? WHERE employee_id = ?', [name.trim(), organization, id]);
-        await runAsync('UPDATE assignments SET employee_name = ?, department = ? WHERE employee_id = ?', [name.trim(), department, id]);
+        await runAsync('UPDATE assets SET employee_name = ?, organization = ? WHERE employee_id = ?', [finalName, finalOrg, id]);
+        await runAsync('UPDATE assignments SET employee_name = ?, department = ? WHERE employee_id = ?', [finalName, finalDept, id]);
+        await runAsync('UPDATE asset_requests SET employee_name = ? WHERE employee_id = ?', [finalName, id]);
+        await runAsync('UPDATE return_requests SET employee_name = ? WHERE employee_id = ?', [finalName, id]);
+        await runAsync('UPDATE asset_returns SET employee_name = ? WHERE employee_id = ?', [finalName, id]);
+
+        // If a linked user account exists with the same email, update user name as well
+        await runAsync('UPDATE users SET name = ? WHERE LOWER(email) = ?', [finalName, finalEmail]);
       });
 
       await runAsync(
         'INSERT INTO audit_logs (action, asset_id, employee_id, description, time, user_email) VALUES (?, ?, ?, ?, ?, ?)',
-        ['Employee Edited', '—', id, `${name} profile updated`, new Date().toISOString(), req.user?.email || 'admin']
+        ['Employee Edited', '—', id, `${finalName} profile updated`, new Date().toISOString(), req.user?.email || 'admin']
       );
 
       const updated = await getAsync('SELECT * FROM employees WHERE id = ?', [id]);

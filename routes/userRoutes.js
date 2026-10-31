@@ -66,6 +66,17 @@ router.put(
 
       const updatedUser = await getAsync('SELECT id, name, email, role, created_at FROM users WHERE id = ?', [req.user.id]);
 
+      if (name && updatedUser?.email) {
+        const cleanName = name.trim();
+        const cleanEmail = updatedUser.email.toLowerCase().trim();
+        await runAsync('UPDATE employees SET name = ? WHERE LOWER(email) = ?', [cleanName, cleanEmail]);
+        await runAsync('UPDATE assets SET employee_name = ? WHERE employee_id IN (SELECT id FROM employees WHERE LOWER(email) = ?)', [cleanName, cleanEmail]);
+        await runAsync('UPDATE assignments SET employee_name = ? WHERE employee_id IN (SELECT id FROM employees WHERE LOWER(email) = ?)', [cleanName, cleanEmail]);
+        await runAsync('UPDATE asset_requests SET employee_name = ? WHERE employee_id IN (SELECT id FROM employees WHERE LOWER(email) = ?)', [cleanName, cleanEmail]);
+        await runAsync('UPDATE return_requests SET employee_name = ? WHERE employee_id IN (SELECT id FROM employees WHERE LOWER(email) = ?)', [cleanName, cleanEmail]);
+        await runAsync('UPDATE asset_returns SET employee_name = ? WHERE employee_id IN (SELECT id FROM employees WHERE LOWER(email) = ?)', [cleanName, cleanEmail]);
+      }
+
       await runAsync(
         'INSERT INTO audit_logs (action, asset_id, employee_id, description, time, user_email) VALUES (?, ?, ?, ?, ?, ?)',
         ['Profile Updated', '—', '—', `User ${updatedUser.name} updated profile details`, new Date().toISOString(), req.user.email]
