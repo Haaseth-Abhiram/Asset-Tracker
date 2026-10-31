@@ -99,20 +99,36 @@ router.post('/adjust-stock', authMiddleware, async (req, res) => {
           );
         }
       } else {
-        // Add new stock units
-        const lastAsset = await getAsync("SELECT id FROM assets WHERE id LIKE ? ORDER BY id DESC LIMIT 1", [`${prefix}-%`]);
+        // Add new stock units safely ensuring unique IDs across any custom or legacy numbering
+        const cleanPrefix = (prefix || 'AST').replace(/[-_]+$/, '').trim().toUpperCase() || 'AST';
+        const allAssets = await allAsync("SELECT id FROM assets");
+        const existingIdSet = new Set(allAssets.map(a => a.id ? a.id.trim() : ''));
+
         let maxNum = 0;
-        if (lastAsset && lastAsset.id) {
-          const num = parseInt(lastAsset.id.split('-').pop(), 10);
-          if (!isNaN(num)) maxNum = num;
+        for (const a of allAssets) {
+          if (a.id) {
+            const match = a.id.match(/\d+$/);
+            if (match) {
+              const n = parseInt(match[0], 10);
+              if (!isNaN(n) && n > maxNum) maxNum = n;
+            }
+          }
         }
 
         const today = new Date().toISOString().slice(0, 10);
 
         for (let i = 0; i < qty; i++) {
-          maxNum++;
-          const id = `${prefix}-${String(maxNum).padStart(4, '0')}`;
-          const serial = `STOCK-${id}-${Date.now().toString(16).toUpperCase()}`;
+          let candidateNum = maxNum + 1;
+          let candidateId = `${cleanPrefix}-${String(candidateNum).padStart(4, '0')}`;
+          while (existingIdSet.has(candidateId)) {
+            candidateNum++;
+            candidateId = `${cleanPrefix}-${String(candidateNum).padStart(4, '0')}`;
+          }
+          maxNum = candidateNum;
+          existingIdSet.add(candidateId);
+
+          const id = candidateId;
+          const serial = `STOCK-${id}-${Date.now().toString(36).toUpperCase()}-${i}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
           await runAsync(
             `INSERT INTO assets 

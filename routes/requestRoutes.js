@@ -57,13 +57,25 @@ router.post(
       const emp = await getAsync('SELECT * FROM employees WHERE id = ?', [employeeId]);
       const employeeName = emp ? emp.name : 'Employee';
 
-      const lastReq = await getAsync("SELECT id FROM asset_requests WHERE id LIKE 'REQ-%' ORDER BY id DESC LIMIT 1");
-      let nextNum = 1;
-      if (lastReq && lastReq.id) {
-        const num = parseInt(lastReq.id.split('-')[1], 10);
-        if (!isNaN(num)) nextNum = num + 1;
+      const allReqs = await allAsync("SELECT id FROM asset_requests");
+      const reqIdSet = new Set(allReqs.map(r => r.id ? r.id.trim() : ''));
+      let maxNum = 0;
+      for (const r of allReqs) {
+        if (r.id) {
+          const match = r.id.match(/\d+$/);
+          if (match) {
+            const n = parseInt(match[0], 10);
+            if (!isNaN(n) && n > maxNum) maxNum = n;
+          }
+        }
       }
-      const id = `REQ-${String(nextNum).padStart(4, '0')}`;
+      let nextNum = maxNum + 1;
+      let candidateId = `REQ-${String(nextNum).padStart(4, '0')}`;
+      while (reqIdSet.has(candidateId)) {
+        nextNum++;
+        candidateId = `REQ-${String(nextNum).padStart(4, '0')}`;
+      }
+      const id = candidateId;
 
       await runAsync(
         `INSERT INTO asset_requests 

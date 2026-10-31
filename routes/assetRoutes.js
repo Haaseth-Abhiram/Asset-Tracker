@@ -142,14 +142,29 @@ router.post(
       if (!id) {
         const prefixSetting = await getAsync("SELECT value FROM settings WHERE key = 'prefix'");
         const prefix = prefixSetting ? prefixSetting.value : 'AST';
+        const cleanPrefix = (prefix || 'AST').replace(/[-_]+$/, '').trim().toUpperCase() || 'AST';
 
-        const lastAsset = await getAsync("SELECT id FROM assets WHERE id LIKE ? ORDER BY id DESC LIMIT 1", [`${prefix}-%`]);
-        let nextNum = 1;
-        if (lastAsset && lastAsset.id) {
-          const num = parseInt(lastAsset.id.split('-').pop(), 10);
-          if (!isNaN(num)) nextNum = num + 1;
+        const allAssets = await allAsync("SELECT id FROM assets");
+        const existingIdSet = new Set(allAssets.map(a => a.id ? a.id.trim() : ''));
+
+        let maxNum = 0;
+        for (const a of allAssets) {
+          if (a.id) {
+            const match = a.id.match(/\d+$/);
+            if (match) {
+              const n = parseInt(match[0], 10);
+              if (!isNaN(n) && n > maxNum) maxNum = n;
+            }
+          }
         }
-        id = `${prefix}-${String(nextNum).padStart(4, '0')}`;
+
+        let nextNum = maxNum + 1;
+        let candidateId = `${cleanPrefix}-${String(nextNum).padStart(4, '0')}`;
+        while (existingIdSet.has(candidateId)) {
+          nextNum++;
+          candidateId = `${cleanPrefix}-${String(nextNum).padStart(4, '0')}`;
+        }
+        id = candidateId;
       } else {
         const existingId = await getAsync('SELECT id FROM assets WHERE id = ?', [id]);
         if (existingId) {

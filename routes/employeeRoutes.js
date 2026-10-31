@@ -119,13 +119,25 @@ router.post(
 
       // If id not provided or auto-generate
       if (!id) {
-        const lastEmp = await getAsync("SELECT id FROM employees WHERE id LIKE 'EMP-%' ORDER BY id DESC LIMIT 1");
-        let nextNum = 1001;
-        if (lastEmp && lastEmp.id) {
-          const num = parseInt(lastEmp.id.split('-')[1], 10);
-          if (!isNaN(num)) nextNum = num + 1;
+        const allEmps = await allAsync("SELECT id FROM employees");
+        const empIdSet = new Set(allEmps.map(e => e.id ? e.id.trim() : ''));
+        let maxNum = 1000;
+        for (const e of allEmps) {
+          if (e.id) {
+            const match = e.id.match(/\d+$/);
+            if (match) {
+              const n = parseInt(match[0], 10);
+              if (!isNaN(n) && n > maxNum) maxNum = n;
+            }
+          }
         }
-        id = `EMP-${nextNum}`;
+        let nextNum = maxNum + 1;
+        let candidateId = `EMP-${nextNum}`;
+        while (empIdSet.has(candidateId)) {
+          nextNum++;
+          candidateId = `EMP-${nextNum}`;
+        }
+        id = candidateId;
       } else {
         const existingId = await getAsync('SELECT id FROM employees WHERE id = ?', [id]);
         if (existingId) {
