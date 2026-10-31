@@ -5308,14 +5308,14 @@ body{background:var(--canvas)}
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    align-items: center !important;
+    align-items: stretch !important;
     justify-content: space-between !important;
     background: #ffffff !important;
     border: 1.5px solid var(--line) !important;
     border-radius: 18px !important;
     padding: 20px 18px 16px !important;
     box-shadow: var(--shadow) !important;
-    min-height: 175px !important;
+    min-height: 180px !important;
     transition: 0.2s ease !important;
 }
 
@@ -5326,21 +5326,22 @@ body{background:var(--canvas)}
 }
 
 .company-summary-logo {
-    width: 82px !important;
-    height: 82px !important;
-    min-width: 82px !important;
-    max-width: 82px !important;
-    aspect-ratio: 1 / 1 !important;
-    margin: 4px auto 14px !important;
-    border-radius: 16px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 115px !important;
+    aspect-ratio: auto !important;
+    margin: 4px 0 14px !important;
+    border-radius: 14px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     background: #f8fbff !important;
     border: 1.5px solid #dce8f6 !important;
-    box-shadow: 0 4px 12px -4px rgba(10, 60, 130, 0.1) !important;
+    box-shadow: 0 2px 10px -4px rgba(10, 60, 130, 0.08) !important;
     overflow: hidden !important;
-    padding: 8px !important;
+    padding: 10px 16px !important;
+    box-sizing: border-box !important;
 }
 
 .company-summary-logo.has-logo,
@@ -5350,17 +5351,17 @@ body{background:var(--canvas)}
 }
 
 .company-summary-logo img {
-    max-width: 86% !important;
-    max-height: 86% !important;
-    width: auto !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: auto !important;
     object-fit: contain !important;
     display: block !important;
 }
 
 .company-summary-logo span {
-    font: 800 24px Manrope, sans-serif !important;
+    font: 800 28px Manrope, sans-serif !important;
     color: var(--ocean) !important;
 }
 
@@ -5476,7 +5477,7 @@ body{background:var(--canvas)}
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    align-items: center !important;
+    align-items: stretch !important;
     justify-content: space-between !important;
     padding: 24px 20px 18px !important;
     border-radius: 20px !important;
@@ -5485,7 +5486,7 @@ body{background:var(--canvas)}
     box-shadow: var(--shadow) !important;
     cursor: pointer !important;
     transition: 0.22s ease !important;
-    min-height: 205px !important;
+    min-height: 220px !important;
 }
 
 .company-logo-card:hover {
@@ -5542,14 +5543,13 @@ body{background:var(--canvas)}
 }
 
 .company-logo-display {
-    flex: none !important;
-    width: 104px !important;
-    height: 104px !important;
-    min-width: 104px !important;
-    max-width: 104px !important;
-    aspect-ratio: 1 / 1 !important;
-    margin: 4px auto 16px !important;
-    border-radius: 18px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 135px !important;
+    aspect-ratio: auto !important;
+    margin: 12px 0 16px !important;
+    border-radius: 16px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -5557,7 +5557,8 @@ body{background:var(--canvas)}
     border: 1.5px solid #dce8f6 !important;
     box-shadow: 0 4px 14px -4px rgba(10, 60, 130, 0.1) !important;
     overflow: hidden !important;
-    padding: 10px !important;
+    padding: 12px 18px !important;
+    box-sizing: border-box !important;
 }
 
 .company-logo-display.has-logo,
@@ -5568,18 +5569,18 @@ body{background:var(--canvas)}
 }
 
 .company-logo-display img {
-    max-width: 86% !important;
-    max-height: 86% !important;
-    width: auto !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: auto !important;
     object-fit: contain !important;
     background: transparent !important;
     display: block !important;
 }
 
 .company-logo-display span {
-    font: 800 26px Manrope, sans-serif !important;
+    font: 800 32px Manrope, sans-serif !important;
     color: #0b78d6 !important;
 }
 
@@ -5603,7 +5604,7 @@ body{background:var(--canvas)}
     padding: 24px 20px 20px !important;
     display: flex !important;
     flex-direction: column !important;
-    align-items: center !important;
+    align-items: stretch !important;
     justify-content: space-between !important;
     gap: 16px !important;
     border: 1.5px solid var(--line) !important;
@@ -5621,21 +5622,22 @@ body{background:var(--canvas)}
 }
 
 .settings-company-logo {
-    width: 108px !important;
-    height: 108px !important;
-    min-width: 108px !important;
-    max-width: 108px !important;
-    aspect-ratio: 1 / 1 !important;
-    padding: 10px !important;
-    margin: 4px auto 10px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 135px !important;
+    aspect-ratio: auto !important;
+    padding: 12px 18px !important;
+    margin: 6px 0 14px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border: 1.5px solid #dce8f6 !important;
     background: #f8fbff !important;
-    border-radius: 18px !important;
+    border-radius: 16px !important;
     overflow: hidden !important;
     box-shadow: 0 4px 14px -4px rgba(10, 60, 130, 0.1) !important;
+    box-sizing: border-box !important;
 }
 
 .settings-company-logo.has-logo,
@@ -5646,11 +5648,11 @@ body{background:var(--canvas)}
 }
 
 .settings-company-logo img {
-    max-width: 86% !important;
-    max-height: 86% !important;
-    width: auto !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: auto !important;
     object-fit: contain !important;
     background: transparent !important;
     display: block !important;
@@ -5659,7 +5661,7 @@ body{background:var(--canvas)}
 .settings-company-logo b {
     display: grid !important;
     place-items: center !important;
-    font-size: 26px !important;
+    font-size: 32px !important;
     font-weight: 800 !important;
     color: #0b78d6 !important;
 }
@@ -5717,13 +5719,12 @@ body{background:var(--canvas)}
 
 /* 6. Company Edit Dialog Preview Modal */
 .company-logo-edit-preview {
-    width: 110px !important;
-    height: 110px !important;
-    min-width: 110px !important;
-    max-width: 110px !important;
-    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    max-width: 340px !important;
+    height: 120px !important;
+    aspect-ratio: auto !important;
     margin: 12px auto 20px !important;
-    padding: 10px !important;
+    padding: 12px 18px !important;
     border: 2px dashed #b8cbd4 !important;
     border-radius: 18px !important;
     display: flex !important;
@@ -5734,14 +5735,15 @@ body{background:var(--canvas)}
     color: var(--ocean) !important;
     font: 800 28px Manrope !important;
     box-shadow: inset 0 2px 6px rgba(10, 60, 130, 0.04) !important;
+    box-sizing: border-box !important;
 }
 
 .company-logo-edit-preview img {
-    max-width: 86% !important;
-    max-height: 86% !important;
-    width: auto !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: auto !important;
     object-fit: contain !important;
     background: transparent !important;
     display: block !important;
