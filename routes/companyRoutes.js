@@ -45,47 +45,40 @@ router.get('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, upload.single('logoFile'), async (req, res) => {
   try {
     const { id } = req.params;
-    const company = await getAsync('SELECT * FROM companies WHERE id = ?', [id]);
+    let company = await getAsync('SELECT * FROM companies WHERE id = ?', [id]);
     if (!company) {
-      return res.status(404).json({ success: false, error: 'Company not found.' });
+      await runAsync('INSERT INTO companies (id, name, logo) VALUES (?, ?, ?)', [id, id, '']);
+      company = await getAsync('SELECT * FROM companies WHERE id = ?', [id]);
     }
 
-    let { name = company.name, logo = company.logo } = req.body;
+    let { name = company?.name || id, logo = company?.logo || '' } = req.body;
 
-    // If an image was uploaded via multer
+    // If an image was uploaded via multer, convert to data URL for permanent cloud storage
     if (req.file) {
-      logo = `/api/documents/file/${req.file.filename}`;
-
-      // Also record in documents table
-      await runAsync(
-        `INSERT INTO documents 
-          (original_name, file_name, file_path, mime_type, file_size, uploaded_by, entity_type, entity_id) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          req.file.originalname,
-          req.file.filename,
-          req.file.path,
-          req.file.mimetype,
-          req.file.size,
-          req.user?.email || 'admin',
-          'company_logo',
-          id
-        ]
-      );
+      const fs = require('fs');
+      try {
+        const fileData = fs.readFileSync(req.file.path);
+        logo = `data:${req.file.mimetype};base64,${fileData.toString('base64')}`;
+      } catch (e) {
+        logo = `/api/documents/file/${req.file.filename}`;
+      }
     }
 
-    await runAsync('UPDATE companies SET name = ?, logo = ? WHERE id = ?', [name.trim() || id, logo || '', id]);
+    const finalName = (name || id).trim();
+    const finalLogo = logo || '';
+
+    await runAsync('UPDATE companies SET name = ?, logo = ? WHERE id = ?', [finalName, finalLogo, id]);
 
     await runAsync(
       'INSERT INTO audit_logs (action, asset_id, employee_id, description, time, user_email) VALUES (?, ?, ?, ?, ?, ?)',
-      ['Company Profile Updated', '—', '—', `Company ${id} (${name}) details updated`, new Date().toISOString(), req.user?.email || 'admin']
+      ['Company Profile Updated', '—', '—', `Company ${id} (${finalName}) details updated`, new Date().toISOString(), req.user?.email || 'admin']
     );
 
     const updated = await getAsync('SELECT * FROM companies WHERE id = ?', [id]);
     return res.json({ success: true, data: updated, message: `${id} details saved.` });
   } catch (err) {
     console.error('Update company error:', err);
-    return res.status(500).json({ success: false, error: 'Failed to update company.' });
+    return res.status(500).json({ success: false, error: err.message || 'Failed to update company.' });
   }
 });
 
