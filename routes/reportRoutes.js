@@ -36,15 +36,21 @@ router.get('/summary', authMiddleware, async (req, res) => {
     return res.json({
       success: true,
       data: {
-        totalAssets: totalAssets ? totalAssets.count : 0,
-        assignedAssets: assignedAssets ? assignedAssets.count : 0,
-        availableAssets: availableAssets ? availableAssets.count : 0,
-        maintenanceAssets: maintenanceAssets ? maintenanceAssets.count : 0,
-        totalValue: totalValue && totalValue.total ? totalValue.total : 0,
-        totalEmployees: totalEmployees ? totalEmployees.count : 0,
-        activeEmployees: activeEmployees ? activeEmployees.count : 0,
-        openMaintenance: openMaintenance ? openMaintenance.count : 0,
-        categoryStats
+        totalAssets: totalAssets ? Number(totalAssets.count || 0) : 0,
+        assignedAssets: assignedAssets ? Number(assignedAssets.count || 0) : 0,
+        availableAssets: availableAssets ? Number(availableAssets.count || 0) : 0,
+        maintenanceAssets: maintenanceAssets ? Number(maintenanceAssets.count || 0) : 0,
+        totalValue: totalValue && totalValue.total ? Number(totalValue.total || 0) : 0,
+        totalEmployees: totalEmployees ? Number(totalEmployees.count || 0) : 0,
+        activeEmployees: activeEmployees ? Number(activeEmployees.count || 0) : 0,
+        openMaintenance: openMaintenance ? Number(openMaintenance.count || 0) : 0,
+        categoryStats: categoryStats.map((cs) => ({
+          ...cs,
+          total: Number(cs.total || 0),
+          assigned: Number(cs.assigned || 0),
+          available: Number(cs.available || 0),
+          maintenance: Number(cs.maintenance || 0)
+        }))
       }
     });
   } catch (err) {

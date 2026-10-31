@@ -30,11 +30,11 @@ router.get('/', authMiddleware, async (req, res) => {
       data: {
         settings,
         stats: {
-          employees: empCount ? empCount.count : 0,
-          assets: assetCount ? assetCount.count : 0,
-          available: available ? available.count : 0,
-          assigned: assigned ? assigned.count : 0,
-          maintenance: maintenance ? maintenance.count : 0
+          employees: empCount ? Number(empCount.count || 0) : 0,
+          assets: assetCount ? Number(assetCount.count || 0) : 0,
+          available: available ? Number(available.count || 0) : 0,
+          assigned: assigned ? Number(assigned.count || 0) : 0,
+          maintenance: maintenance ? Number(maintenance.count || 0) : 0
         }
       }
     });

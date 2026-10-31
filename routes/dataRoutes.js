@@ -30,6 +30,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
     const assets = rawAssets.map((a) => ({
       ...a,
+      price: Number(a.price || 0),
       purchaseDate: a.purchase_date,
       employeeId: a.employee_id || '',
       employeeName: a.employee_name || '',
@@ -73,6 +74,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
     const maintenance = rawMaintenance.map((m) => ({
       ...m,
+      cost: Number(m.cost || 0),
       assetId: m.asset_id
     }));
 
