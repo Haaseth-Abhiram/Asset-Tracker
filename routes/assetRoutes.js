@@ -123,7 +123,9 @@ router.post(
         status = 'Available',
         organization = 'C1',
         image = '',
-        stockNote = ''
+        stockNote = '',
+        employeeId = '',
+        employeeName = ''
       } = req.body;
 
       if (req.file) {
@@ -174,8 +176,8 @@ router.post(
 
       await runAsync(
         `INSERT INTO assets 
-          (id, name, category, brand, model, serial, purchase_date, price, vendor, warranty, location, condition, status, organization, image, stock_note) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (id, name, category, brand, model, serial, purchase_date, price, vendor, warranty, location, condition, status, organization, image, stock_note, employee_id, employee_name) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
           name.trim(),
@@ -192,7 +194,9 @@ router.post(
           status,
           organization,
           image || '',
-          stockNote
+          stockNote,
+          employeeId || null,
+          employeeName || null
         ]
       );
 
