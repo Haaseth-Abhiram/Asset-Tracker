@@ -272,7 +272,7 @@ router.put(
 );
 
 // DELETE /api/employees/:id (Admin only)
-router.delete('/:id', authMiddleware, roleMiddleware(['Administrator']), async (req, res) => {
+router.delete('/:id', authMiddleware, roleMiddleware(['Administrator', 'Workspace user', 'User', 'Staff']), async (req, res) => {
   try {
     const { id } = req.params;
     const existing = await getAsync('SELECT * FROM employees WHERE id = ?', [id]);

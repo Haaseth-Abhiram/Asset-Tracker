@@ -5749,3 +5749,9 @@ body{background:var(--canvas)}
     background: transparent !important;
     display: block !important;
 }
+
+.row-action.row-action-danger:hover {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #fca5a5 !important;
+}
