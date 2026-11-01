@@ -186,3 +186,5 @@ zyllotech-asset-management/
 - `GET /api/reports/export/:kind` — Download CSV export (`assets`, `employees`, `assignments`, `maintenance`, `categories`, `audit`).
 - `POST /api/documents/upload` — Upload private file using Multer.
 - `GET /api/documents/:id` — Secure authenticated file download.
+
+vercel Link : https://asset-tracker-gray-nine.vercel.app/
